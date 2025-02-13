@@ -1,3 +1,3 @@
 ## Integrantes
-Juan Sebastian Velandia Pedraza
+Juan Sebastian Velandia Pedraza\n
 Juan Felipe Ochoa Guerrero
