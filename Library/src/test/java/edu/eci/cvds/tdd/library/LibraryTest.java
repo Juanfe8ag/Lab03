@@ -39,6 +39,13 @@ public class LibraryTest {
     }
 
     @Test
+    void shouldAddAUser(){
+        user.setId("101");
+        assertTrue(library.addUser(user));
+        assertEquals(user, library.searchUser("101"));
+    }
+
+    @Test
     public void shouldHaveALoan(){
         user.setId("101");
         library.addBook(example);
@@ -54,9 +61,100 @@ public class LibraryTest {
     }
 
     @Test
+    void shouldNotLoan_UnavailableBook() {
+        user.setId("101");
+        library.addUser(user);
+        assertNull(library.loanABook("101", "112"));
+    }
+
+    @Test
     public void shouldNotHaveALoan_isbn(){
         user.setId("101");
         library.addBook(example);
         assertNull(library.loanABook("101", "1"));
     }
+
+    @Test
+    void testSearchUser(){
+        user.setId("101");
+        library.addUser(user);
+        assertEquals(user, library.searchUser("101"));
+        assertNull(library.searchUser("999"));
+    }
+
+    @Test
+    void testSearchBook(){
+        library.addBook(example);
+        assertEquals(example, library.searchBook("111"));
+        assertNull(library.searchBook("999"));
+    }
+
+    @Test
+    void shouldCheckActiveLoans(){
+        user.setId("101");
+        User user2 = new User();
+        user2.setId("102");
+        library.addUser(user);
+        library.addUser(user2);
+        library.addBook(example);
+        Loan loan = library.loanABook("101", "111");
+        assertTrue(library.checkActiveLoans(user2, example));
+        assertFalse(library.checkActiveLoans(user, example));
+    }
+
+    @Test
+    void shouldLoanABook(){
+        user.setId("101");
+        library.addUser(user);
+        library.addBook(example);
+        Loan loan = library.loanABook("101", "111");
+        assertNotNull(loan);
+        assertEquals(LoanStatus.ACTIVE, loan.getStatus());
+        Loan duplicateLoan = library.loanABook("101", "111");
+        assertNull(duplicateLoan);
+    }
+
+    @Test
+    void ShouldLoanMultipleBooks() {
+        user.setId("101");
+        library.addUser(user);
+        Book example2 = new Book("example2","author2","123");
+        library.addBook(example);
+        library.addBook(example2);
+        Loan loan1 = library.loanABook("101", "111");
+        Loan loan2 = library.loanABook("101", "123");
+        assertNotNull(loan1);
+        assertNotNull(loan2);
+    }
+
+    @Test
+    void shouldNotLoanSameBook() {
+        user.setId("101");
+        library.addUser(user);
+        library.addBook(example);
+        library.addBook(example);
+        Loan loan1 = library.loanABook("101", "111");
+        Loan loan2 = library.loanABook("101", "111");
+        assertNotNull(loan1);
+        assertNull(loan2);
+    }
+
+    @Test
+    void shouldReturnLoan(){
+        user.setId("101");
+        library.addUser(user);
+        library.addBook(example);
+        Loan loan = library.loanABook("101", "111");
+        assertNotNull(loan);
+        Loan returnedLoan = library.returnLoan(loan);
+        assertNotNull(returnedLoan);
+        assertEquals(LoanStatus.RETURNED, returnedLoan.getStatus());
+    }
+
+    @Test
+    void shouldReturnNonexistentLoan() {
+        Loan fakeLoan = new Loan();
+        assertNull(library.returnLoan(fakeLoan));
+    }
+
 }
